@@ -1,0 +1,13 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1784413814067,
+      "tag": "0000_colossal_longshot",
+      "breakpoints": true
+    }
+  ]
+}
