@@ -1,0 +1,4 @@
+import { cookies } from "next/headers";
+import { checkRateLimit } from "../../../data-service";
+import { createSession, verifyGoogleCredential } from "../../../google-session";
+export async function POST(request:Request){try{if(!await checkRateLimit("google-login",30,60_000))return Response.json({error:"Too many sign-in attempts."},{status:429});const body=await request.json() as {credential?:string};const identity=await verifyGoogleCredential(String(body.credential||""));const token=await createSession(identity);const store=await cookies();store.set("proskopos_session",token,{httpOnly:true,secure:process.env.NODE_ENV==="production",sameSite:"lax",path:"/",maxAge:60*60*24*30});return Response.json({user:identity})}catch(error){return Response.json({error:error instanceof Error?error.message:"Google sign-in failed"},{status:401})}}

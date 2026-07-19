@@ -1,4 +1,4 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, primaryKey, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const leads = sqliteTable("leads", {
   id: text("id").primaryKey(),
@@ -23,5 +23,60 @@ export const leads = sqliteTable("leads", {
   score: integer("score").notNull(),
   scoreBreakdown: text("score_breakdown").notNull(),
   summary: text("summary").notNull(),
+  evidenceConfidence: text("evidence_confidence").notNull().default("inferred"),
+  evidenceNote: text("evidence_note").notNull().default(""),
   syncedAt: text("synced_at").notNull(),
+});
+
+export const userProfiles = sqliteTable("user_profiles", {
+  userId: text("user_id").primaryKey(),
+  displayName: text("display_name").notNull(),
+  goals: text("goals").notNull().default("[]"),
+  stacks: text("stacks").notNull().default("[]"),
+  chains: text("chains").notNull().default("[]"),
+  specialties: text("specialties").notNull().default("[]"),
+  experienceLevel: text("experience_level").notNull().default("Growing"),
+  portfolioUrl: text("portfolio_url").notNull().default(""),
+  minReward: integer("min_reward").notNull().default(0),
+  availability: text("availability").notNull().default("Flexible"),
+  region: text("region").notNull().default("Global"),
+  scopedOnly: integer("scoped_only", { mode: "boolean" }).notNull().default(true),
+  alertFrequency: text("alert_frequency").notNull().default("Daily"),
+  alertChannel: text("alert_channel").notNull().default("In-app"),
+  alertDestination: text("alert_destination").notNull().default(""),
+  onboardingComplete: integer("onboarding_complete", { mode: "boolean" }).notNull().default(false),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const userLeadState = sqliteTable("user_lead_state", {
+  userId: text("user_id").notNull(),
+  leadId: text("lead_id").notNull(),
+  saved: integer("saved", { mode: "boolean" }).notNull().default(false),
+  hidden: integer("hidden", { mode: "boolean" }).notNull().default(false),
+  pitchedAt: text("pitched_at"),
+  notes: text("notes").notNull().default(""),
+  nextActionAt: text("next_action_at"),
+  updatedAt: text("updated_at").notNull(),
+}, (table) => [primaryKey({ columns: [table.userId, table.leadId] })]);
+
+export const syncState = sqliteTable("sync_state", {
+  source: text("source").primaryKey(),
+  lastSyncedAt: text("last_synced_at").notNull(),
+  status: text("status").notNull(),
+  itemCount: integer("item_count").notNull().default(0),
+  error: text("error"),
+});
+
+export const rateLimits = sqliteTable("rate_limits", {
+  key: text("key").primaryKey(),
+  windowStart: integer("window_start").notNull(),
+  count: integer("count").notNull().default(0),
+});
+
+export const feedback = sqliteTable("feedback", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  message: text("message").notNull(),
+  createdAt: text("created_at").notNull(),
 });
