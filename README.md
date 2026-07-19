@@ -1,14 +1,21 @@
-# vinext-starter
+# Proskopos
 
-A clean full-stack starter running on
-[vinext](https://github.com/cloudflare/vinext), with optional Cloudflare D1 and
-Drizzle support.
+Proskopos is an explainable Web3 security opportunity radar for independent auditors. It collects official bounty and audit-contest listings, finds early public protocol signals, scores opportunity quality, and calculates personal fit from each auditor's private profile.
 
-## Prerequisites
+## What it includes
 
-- Node.js `>=22.13.0`
+- Official listing collectors for Immunefi, Code4rena, Sherlock, and Cantina
+- HackerOne directory monitoring and GitHub early-project discovery
+- Separate Opportunity Quality and Personal Fit scores
+- Private saved, hidden, pitched, notes, and next-action state
+- Google authentication with server-side credential verification
+- Permission-first evidence labels and responsible-testing guidance
+- Cloudflare D1 persistence through OpenAI Sites
+- A short Vercel public edge URL that proxies the stateful Sites deployment
 
-## Quick Start
+## Local development
+
+Requires Node.js 22.13 or later.
 
 ```bash
 npm install
@@ -16,83 +23,20 @@ npm run dev
 npm run build
 ```
 
-This starter does not use `wrangler.jsonc`.
+The local Vinext environment simulates the declared `DB` binding. Hosted runtime values are managed outside the repository.
 
-## Included Shape
+## Runtime configuration
 
-- edit site code under `app/`
-- `.openai/hosting.json` declares optional Sites D1 and R2 bindings
-- `vite.config.ts` simulates declared bindings for local development
-- `db/schema.ts` starts intentionally empty
-- `examples/d1/` contains an optional D1 example surface
-- `drizzle.config.ts` supports local migration generation when needed
+- `GOOGLE_CLIENT_ID`: Google Identity Services Web application client ID
+- `SESSION_SECRET`: private HMAC secret for authenticated sessions
+- `DB`: Cloudflare D1 binding declared in `.openai/hosting.json`
 
-## Workspace Auth Headers
+Do not commit secrets or local environment files.
 
-OpenAI workspace sites can read the current user's email from
-`oai-authenticated-user-email`.
+## Data model
 
-SIWC-authenticated workspace sites may also receive
-`oai-authenticated-user-full-name` when the user's SIWC profile has a non-empty
-`name` claim. The full-name value is percent-encoded UTF-8 and is accompanied by
-`oai-authenticated-user-full-name-encoding: percent-encoded-utf-8`.
+Global opportunity evidence is stored separately from private user profiles and lead state. Drizzle schema and migrations are in `db/` and `drizzle/`.
 
-Treat the full name as optional and fall back to email when it is absent:
+## Responsible use
 
-```tsx
-import { headers } from "next/headers";
-
-export default async function Home() {
-  const requestHeaders = await headers();
-  const email = requestHeaders.get("oai-authenticated-user-email");
-  const encodedFullName = requestHeaders.get("oai-authenticated-user-full-name");
-  const fullName =
-    encodedFullName &&
-    requestHeaders.get("oai-authenticated-user-full-name-encoding") ===
-      "percent-encoded-utf-8"
-      ? decodeURIComponent(encodedFullName)
-      : null;
-
-  const displayName = fullName ?? email;
-  // ...
-}
-```
-
-## Optional Dispatch-Owned ChatGPT Sign-In
-
-Import the ready-to-use helpers from `app/chatgpt-auth.ts` when the site needs
-optional or required ChatGPT sign-in:
-
-- Use `getChatGPTUser()` for optional signed-in UI.
-- Use `requireChatGPTUser(returnTo)` for server-rendered pages that should send
-  anonymous visitors through Sign in with ChatGPT.
-- Use `chatGPTSignInPath(returnTo)` and `chatGPTSignOutPath(returnTo)` for
-  browser links or actions.
-- Pass a same-origin relative `returnTo` path for the destination after sign-in
-  or sign-out. The helper validates and safely encodes it.
-- Mark protected pages with `export const dynamic = "force-dynamic"` because
-  they depend on per-request identity headers.
-
-Dispatch owns `/signin-with-chatgpt`, `/signout-with-chatgpt`, `/callback`, the
-OAuth cookies, and identity header injection. Do not implement app routes for
-those reserved paths. Routes that do not import and call the helper remain
-anonymous-compatible.
-
-SIWC establishes identity only; it does not prove workspace membership. Use the
-Sites hosting platform's access policy controls for workspace-wide restrictions,
-or enforce explicit server-side membership or allowlist checks.
-
-Use SIWC for account pages, user-specific dashboards, saved records, and write
-actions tied to the current ChatGPT user. Leave public content anonymous.
-
-## Useful Commands
-
-- `npm run dev`: start local development
-- `npm run build`: verify the vinext build output
-- `npm test`: build the starter and verify its rendered loading skeleton
-- `npm run db:generate`: generate Drizzle migrations after schema changes
-
-## Learn More
-
-- [vinext Documentation](https://github.com/cloudflare/vinext)
-- [Drizzle D1 Guide](https://orm.drizzle.team/docs/get-started/d1-new)
+A public repository or missing security policy is never authorization to test. Use Proskopos to find and qualify opportunities, then follow the official scope, disclosure rules, and safe-harbor terms.

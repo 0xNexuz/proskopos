@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": "node -e \"console.log('Proskopos edge ready')\"",
+  "outputDirectory": "vercel-static",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "https://proskopos-audit-radar.elllbest7.chatgpt.site/$1"
+    }
+  ]
+}
