@@ -13,9 +13,10 @@ function serialize(row: typeof userProfiles.$inferSelect | undefined) {
 export async function GET() {
   await ensureRuntimeSchema();
   const user = await getCurrentUser();
-  if (!user) return Response.json({ user:null, profile:null, authMode:"google", googleClientId:googleClientId() });
+  if (!user) return Response.json({ user:null, profile:null, isOwner:false, authMode:"google", googleClientId:googleClientId() });
   const rows = await getDb().select().from(userProfiles).where(eq(userProfiles.userId, user.email)).limit(1);
-  return Response.json({ user, profile:serialize(rows[0]), authMode:"private-sites-session", googleClientId:googleClientId() });
+  const isOwner = user.email.toLowerCase() === String(process.env.OWNER_EMAIL || "").trim().toLowerCase();
+  return Response.json({ user, profile:serialize(rows[0]), isOwner, authMode:"private-sites-session", googleClientId:googleClientId() });
 }
 
 export async function PUT(request: Request) {

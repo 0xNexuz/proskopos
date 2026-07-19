@@ -1,7 +1,25 @@
 import { ensureRuntimeSchema, getDb } from "../../../db";
+import { desc } from "drizzle-orm";
 import { feedback } from "../../../db/schema";
 import { requireCurrentUser } from "../../current-user";
 import { checkRateLimit } from "../../data-service";
+
+function isOwner(email:string) {
+  return email.toLowerCase() === String(process.env.OWNER_EMAIL || "").trim().toLowerCase();
+}
+
+export async function GET() {
+  try {
+    await ensureRuntimeSchema();
+    const user = await requireCurrentUser();
+    if (!isOwner(user.email)) return Response.json({ error:"Owner access required." }, { status:403 });
+    const items = await getDb().select().from(feedback).orderBy(desc(feedback.createdAt)).limit(100);
+    return Response.json({ items });
+  } catch (error) {
+    if (error instanceof Error && error.message === "AUTH_REQUIRED") return Response.json({ error:"Sign in is required." }, { status:401 });
+    return Response.json({ error:"Unable to load feedback" }, { status:500 });
+  }
+}
 
 export async function POST(request: Request) {
   try {
