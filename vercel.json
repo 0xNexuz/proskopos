@@ -5,8 +5,12 @@
   "outputDirectory": "vercel-static",
   "rewrites": [
     {
-      "source": "/(.*)",
-      "destination": "https://proskopos-audit-radar.elllbest7.chatgpt.site/$1"
+      "source": "/",
+      "destination": "https://proskopos-audit-radar.elllbest7.chatgpt.site/"
+    },
+    {
+      "source": "/:path*",
+      "destination": "https://proskopos-audit-radar.elllbest7.chatgpt.site/:path*"
     }
   ]
 }
