@@ -28,7 +28,15 @@ export function calculateFit(lead: QualifiableLead, profile: ProfileInput | null
   const reasons = [
     stack === 30 ? `Matches ${lead.stack}.` : "Adjacent to your selected stacks.",
     domain === 20 ? "Matches a selected specialty." : "Domain match is partial.",
-    rewardValue ? `${lead.reward} clears the recorded budget check.` : "Reward is not yet published.",
+    rewardValue && (profile.minReward === 0 || rewardValue >= profile.minReward) ? `${lead.reward} clears your budget check.` : rewardValue ? `${lead.reward} is below your $${profile.minReward.toLocaleString()} minimum.` : "Reward is not yet published.",
   ];
-  return { fitScore, qualified, fitBreakdown, reasons };
+  const qualificationGaps = qualified ? [] : [
+    ...(lead.score < 70 ? [`Opportunity quality needs ${70 - lead.score} more points.`] : []),
+    ...(fitScore < 75 ? [`Your fit needs ${75 - fitScore} more points.`] : []),
+    ...(stack < 30 ? [`Add ${lead.stack} or a matching chain to your profile if it reflects your experience.`] : []),
+    ...(domain < 20 ? ["Select a matching security specialty to strengthen this fit."] : []),
+    ...(budget === 2 ? [`Lower your minimum reward to ${lead.reward} to include this opportunity.`] : []),
+    ...(hardDisqualifier ? ["The published eligibility information conflicts with your region."] : []),
+  ].slice(0,3);
+  return { fitScore, qualified, fitBreakdown, reasons, qualificationGaps };
 }

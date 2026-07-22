@@ -21,6 +21,8 @@ export async function PATCH(request: Request, context: { params: Promise<{ id:st
       pitchedAt:typeof body.pitched === "boolean" ? (body.pitched ? new Date().toISOString() : null) : existing[0]?.pitchedAt || null,
       notes:typeof body.notes === "string" ? body.notes.slice(0,3000) : existing[0]?.notes || "",
       nextActionAt:typeof body.nextActionAt === "string" && body.nextActionAt ? body.nextActionAt.slice(0,40) : body.nextActionAt === null ? null : existing[0]?.nextActionAt || null,
+      outcome:typeof body.outcome === "string" ? body.outcome.slice(0,40) : existing[0]?.outcome || "",
+      outcomeNote:typeof body.outcomeNote === "string" ? body.outcomeNote.slice(0,500) : existing[0]?.outcomeNote || "",
       updatedAt:new Date().toISOString(),
     };
     await getDb().insert(userLeadState).values(value).onConflictDoUpdate({ target:[userLeadState.userId,userLeadState.leadId], set:value });

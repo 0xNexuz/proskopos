@@ -3,6 +3,7 @@
   "framework": null,
   "buildCommand": "node -e \"console.log('Proskopos edge ready')\"",
   "outputDirectory": "vercel-static",
+  "crons": [{ "path": "/api/notifications/email", "schedule": "0 8 * * *" }],
   "rewrites": [
     {
       "source": "/",

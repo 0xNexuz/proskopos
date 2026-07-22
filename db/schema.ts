@@ -44,6 +44,12 @@ export const userProfiles = sqliteTable("user_profiles", {
   alertFrequency: text("alert_frequency").notNull().default("Daily"),
   alertChannel: text("alert_channel").notNull().default("In-app"),
   alertDestination: text("alert_destination").notNull().default(""),
+  passportHeadline: text("passport_headline").notNull().default("Independent Web3 security researcher"),
+  passportBio: text("passport_bio").notNull().default(""),
+  passportSlug: text("passport_slug").notNull().default(""),
+  passportPublic: integer("passport_public", { mode: "boolean" }).notNull().default(false),
+  githubUrl: text("github_url").notNull().default(""),
+  auditReportUrls: text("audit_report_urls").notNull().default("[]"),
   onboardingComplete: integer("onboarding_complete", { mode: "boolean" }).notNull().default(false),
   createdAt: text("created_at").notNull(),
   updatedAt: text("updated_at").notNull(),
@@ -57,8 +63,33 @@ export const userLeadState = sqliteTable("user_lead_state", {
   pitchedAt: text("pitched_at"),
   notes: text("notes").notNull().default(""),
   nextActionAt: text("next_action_at"),
+  outcome: text("outcome").notNull().default(""),
+  outcomeNote: text("outcome_note").notNull().default(""),
   updatedAt: text("updated_at").notNull(),
 }, (table) => [primaryKey({ columns: [table.userId, table.leadId] })]);
+
+export const watchlists = sqliteTable("watchlists", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  name: text("name").notNull(),
+  stacks: text("stacks").notNull().default("[]"),
+  categories: text("categories").notNull().default("[]"),
+  minReward: integer("min_reward").notNull().default(0),
+  verifiedOnly: integer("verified_only", { mode: "boolean" }).notNull().default(false),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  createdAt: text("created_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const notificationLog = sqliteTable("notification_log", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  channel: text("channel").notNull(),
+  status: text("status").notNull(),
+  itemCount: integer("item_count").notNull().default(0),
+  detail: text("detail").notNull().default(""),
+  sentAt: text("sent_at").notNull(),
+});
 
 export const syncState = sqliteTable("sync_state", {
   source: text("source").primaryKey(),

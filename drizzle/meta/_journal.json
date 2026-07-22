@@ -15,6 +15,13 @@
       "when": 1784421107200,
       "tag": "0001_panoramic_shaman",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1784703762359,
+      "tag": "0002_slow_hex",
+      "breakpoints": true
     }
   ]
 }

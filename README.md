@@ -7,7 +7,9 @@ Proskopos is an explainable Web3 security opportunity radar for independent audi
 - Official listing collectors for Immunefi, Code4rena, Sherlock, and Cantina
 - HackerOne directory monitoring and GitHub early-project discovery
 - Separate Opportunity Quality and Personal Fit scores
-- Private saved, hidden, pitched, notes, and next-action state
+- Private saved, hidden, pitched, notes, next-action, and optional outcome learning
+- Daily Signal watchlists with email previews and scheduled digests
+- A distinctive, opt-in public Security Passport and scope workspace
 - Google authentication with server-side credential verification
 - Permission-first evidence labels and responsible-testing guidance
 - Cloudflare D1 persistence through OpenAI Sites
@@ -30,6 +32,9 @@ The local Vinext environment simulates the declared `DB` binding. Hosted runtime
 - `GOOGLE_CLIENT_ID`: Google Identity Services Web application client ID
 - `SESSION_SECRET`: private HMAC secret for authenticated sessions
 - `DB`: Cloudflare D1 binding declared in `.openai/hosting.json`
+- `RESEND_API_KEY`: Resend API key used for email delivery
+- `EMAIL_FROM`: verified sender, for example `Proskopos <signals@example.com>`
+- `CRON_SECRET`: shared secret protecting scheduled digest runs
 
 Do not commit secrets or local environment files.
 

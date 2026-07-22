@@ -7,7 +7,7 @@ import { googleClientId } from "../../google-session";
 
 function serialize(row: typeof userProfiles.$inferSelect | undefined) {
   if (!row) return null;
-  return { ...row, goals:jsonArray(row.goals), stacks:jsonArray(row.stacks), chains:jsonArray(row.chains), specialties:jsonArray(row.specialties) };
+  return { ...row, goals:jsonArray(row.goals), stacks:jsonArray(row.stacks), chains:jsonArray(row.chains), specialties:jsonArray(row.specialties), auditReportUrls:jsonArray(row.auditReportUrls) };
 }
 
 export async function GET() {
@@ -33,6 +33,10 @@ export async function PUT(request: Request) {
       experienceLevel:String(body.experienceLevel || "Growing").slice(0,30), portfolioUrl:String(body.portfolioUrl || "").slice(0,300), minReward:Math.max(0, Number(body.minReward) || 0),
       availability:String(body.availability || "Flexible").slice(0,60), region:String(body.region || "Global").slice(0,80), scopedOnly:body.scopedOnly !== false,
       alertFrequency:String(body.alertFrequency || "Daily").slice(0,30), alertChannel:String(body.alertChannel || "In-app").slice(0,30), alertDestination:String(body.alertDestination || "").slice(0,160),
+      passportHeadline:String(body.passportHeadline || "Independent Web3 security researcher").slice(0,100),
+      passportBio:String(body.passportBio || "").slice(0,600), passportSlug:safeSlug(String(body.passportSlug || existing[0]?.passportSlug || user.displayName)) || `researcher-${crypto.randomUUID().slice(0,8)}`,
+      passportPublic:body.passportPublic === true, githubUrl:String(body.githubUrl || "").slice(0,300),
+      auditReportUrls:JSON.stringify(arrays("auditReportUrls").slice(0,8).map((url)=>url.slice(0,300))),
       onboardingComplete:arrays("goals").length > 0 && arrays("stacks").length > 0, createdAt:existing[0]?.createdAt || timestamp, updatedAt:timestamp,
     };
     await getDb().insert(userProfiles).values(value).onConflictDoUpdate({ target:userProfiles.userId, set:value });
