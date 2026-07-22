@@ -1,6 +1,6 @@
 import { desc, eq } from "drizzle-orm";
 import { ensureRuntimeSchema, getDb } from "../../../../db";
-import { leads, notificationLog, userProfiles } from "../../../../db/schema";
+import { leads, notificationLog, userProfiles, watchlists } from "../../../../db/schema";
 import { requireCurrentUser } from "../../../current-user";
 import { calculateFit } from "../../../qualification";
 import { checkRateLimit, jsonArray } from "../../../data-service";
@@ -15,8 +15,10 @@ async function sendFor(email:string,profile:typeof userProfiles.$inferSelect,pre
   if(!apiKey||!from) throw new Error("EMAIL_NOT_CONFIGURED");
   const rows=await getDb().select().from(leads).orderBy(desc(leads.score),desc(leads.syncedAt)).limit(100);
   const shaped=profileShape(profile);
-  const matches=rows.map((lead)=>({...lead,...calculateFit(lead,shaped)})).filter((lead)=>lead.qualified).sort((a,b)=>b.fitScore-a.fitScore).slice(0,3);
-  const fallbacks=matches.length?matches:rows.map((lead)=>({...lead,...calculateFit(lead,shaped)})).sort((a,b)=>(b.fitScore+b.score)-(a.fitScore+a.score)).slice(0,3);
+  const watches=(await getDb().select().from(watchlists).where(eq(watchlists.userId,email))).filter((watch)=>watch.active);
+  const candidates=watches.length?rows.filter((lead)=>watches.some((watch)=>{const stacks=jsonArray(watch.stacks),categories=jsonArray(watch.categories);return(!stacks.length||stacks.some((stack)=>lead.stack.toLowerCase().includes(stack.toLowerCase())))&&(!categories.length||categories.includes(lead.category))&&(!watch.minReward||rewardNumber(lead.reward)>=watch.minReward)&&(!watch.verifiedOnly||lead.evidenceConfidence==="verified")})):rows;
+  const matches=candidates.map((lead)=>({...lead,...calculateFit(lead,shaped)})).filter((lead)=>lead.qualified).sort((a,b)=>b.fitScore-a.fitScore).slice(0,3);
+  const fallbacks=matches.length?matches:candidates.map((lead)=>({...lead,...calculateFit(lead,shaped)})).sort((a,b)=>(b.fitScore+b.score)-(a.fitScore+a.score)).slice(0,3);
   const destination=profile.alertDestination||email;
   const cards=fallbacks.map((lead)=>`<div style="border:1px solid #c7d978;border-radius:16px;padding:18px;margin:12px 0;background:#f9f4ea"><strong style="font-size:18px;color:#32233e">${escapeHtml(lead.project)}</strong><p style="color:#655a61">${escapeHtml(lead.summary)}</p><p><b>${lead.fitScore}/100 fit</b> · ${escapeHtml(lead.reward)} · ${escapeHtml(lead.deadline)}</p><a href="${escapeHtml(lead.sourceUrl)}" style="color:#245f56">Review official source →</a></div>`).join("");
   const html=`<div style="font-family:Arial,sans-serif;max-width:620px;margin:auto;background:#f3ede3;padding:28px;color:#32233e"><p style="letter-spacing:.15em;color:#53786d">PROSKOPOS · DAILY SIGNAL</p><h1 style="font-family:Georgia,serif;font-size:38px">The work worth seeing today.</h1><p>These are your strongest current matches, selected from your stacks, preferences, and verified opportunity evidence.</p>${cards}<p style="font-size:12px;color:#766c70">Permission first: always follow the official scope and safe-harbor terms. Manage notifications from your private radar.</p></div>`;
@@ -49,7 +51,8 @@ export async function GET(request:Request){
     const secret=String(process.env.CRON_SECRET||"");
     if(!secret||request.headers.get("authorization")!==`Bearer ${secret}`)return Response.json({error:"Unauthorized"},{status:401});
     const profiles=await getDb().select().from(userProfiles);
-    const eligible=profiles.filter((profile)=>profile.alertChannel==="Email"&&profile.alertFrequency!=="Off");
+    const weekday=new Date().getUTCDay();
+    const eligible=profiles.filter((profile)=>profile.alertChannel==="Email"&&(profile.alertFrequency==="Daily"||profile.alertFrequency==="Instant"||(profile.alertFrequency==="Weekly"&&weekday===1)));
     let sent=0;
     for(const profile of eligible){try{await sendFor(profile.userId,profile);sent+=1}catch{/* One user should not stop the digest run. */}}
     return Response.json({ok:true,sent});
