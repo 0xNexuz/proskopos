@@ -5,7 +5,9 @@ import { getCurrentUser, requireCurrentUser } from "../../current-user";
 import { calculateFit } from "../../qualification";
 import { checkRateLimit, ensureFreshLeads, jsonArray, refreshLeads } from "../../data-service";
 
-const profileShape = (row: typeof userProfiles.$inferSelect | undefined) => row ? { ...row, goals:jsonArray(row.goals), stacks:jsonArray(row.stacks), chains:jsonArray(row.chains), specialties:jsonArray(row.specialties) } : null;
+const profileShape = (row: typeof userProfiles.$inferSelect | undefined) => row ? { ...row, goals:jsonArray(row.goals), stacks:jsonArray(row.stacks), chains:jsonArray(row.chains), specialties:jsonArray(row.specialties), tools:jsonArray(row.tools) } : null;
+const jsonObject = (value:string) => { try { return JSON.parse(value) as Record<string,number>; } catch { return {}; } };
+const leadShape = (row:typeof leads.$inferSelect) => ({ ...row, qualityScore:row.score, qualityBreakdown:jsonObject(row.scoreBreakdown), earningBreakdown:jsonObject(row.earningBreakdown), topics:jsonArray(row.topics), technologies:jsonArray(row.technologies), rewardPaths:jsonArray(row.rewardPaths) });
 
 export async function GET() {
   try {
@@ -13,7 +15,7 @@ export async function GET() {
     const db = getDb();
     const user = await getCurrentUser();
     const [rows, states, profileRows, sourceState] = await Promise.all([
-      db.select().from(leads).orderBy(desc(leads.score), desc(leads.syncedAt)).limit(150),
+      db.select().from(leads).orderBy(desc(leads.earningScore), desc(leads.score), desc(leads.syncedAt)).limit(150),
       user ? db.select().from(userLeadState).where(eq(userLeadState.userId, user.email)) : Promise.resolve([]),
       user ? db.select().from(userProfiles).where(eq(userProfiles.userId, user.email)).limit(1) : Promise.resolve([]),
       db.select().from(syncState).orderBy(desc(syncState.lastSyncedAt)),
@@ -21,8 +23,8 @@ export async function GET() {
     const profile = profileShape(profileRows[0]);
     const stateMap = new Map(states.map((state) => [state.leadId, state]));
     const result = rows.map((row) => {
-      const qualityBreakdown = (() => { try { return JSON.parse(row.scoreBreakdown); } catch { return {}; } })();
-      return { ...row, qualityScore:row.score, qualityBreakdown, ...calculateFit(row, profile), userState:stateMap.get(row.id) || { saved:false, hidden:false, pitchedAt:null, notes:"", nextActionAt:null } };
+      const shaped = leadShape(row);
+      return { ...shaped, ...calculateFit(shaped, profile), userState:stateMap.get(row.id) || { saved:false, hidden:false, pitchedAt:null, notes:"", nextActionAt:null } };
     });
     return Response.json({ leads:result, profile, sources:sourceState, lastSynced:sourceState[0]?.lastSyncedAt || null, autoRefresh:"Traffic-triggered every 6 hours" });
   } catch (error) { return Response.json({ error:error instanceof Error ? error.message : "Unable to load opportunities" }, { status:500 }); }

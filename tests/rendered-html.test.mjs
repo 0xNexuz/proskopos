@@ -42,3 +42,28 @@ test("keeps email delivery private and configurable", async () => {
   assert.match(passportPage, /passportPublic,true/);
   assert.doesNotMatch(passportPage, /userId/);
 });
+
+test("explains the Opportunity Edge and finds underrated public signals", async () => {
+  const [app, qualification, collectors, schema, watchRoute] = await Promise.all([
+    source("app/proskopos-app.tsx"),
+    source("app/qualification.ts"),
+    source("app/collectors.ts"),
+    source("db/schema.ts"),
+    source("app/api/watchlists/route.ts"),
+  ]);
+
+  assert.match(app, /Earning potential/);
+  assert.match(app, /Opportunity Edge/);
+  assert.match(app, /taxonomy-strip/);
+  assert.match(app, /Micro-bounties/);
+  assert.match(app, /Low visibility/);
+  assert.match(qualification, /lead\.earningScore >= 50/);
+  assert.match(qualification, /competitionConfidence/);
+  assert.match(collectors, /collectGithubIssues/);
+  assert.match(collectors, /permission|authorized scope/i);
+  assert.match(schema, /earningBreakdown/);
+  assert.match(schema, /participationRewards/);
+  assert.match(schema, /weeklyHours/);
+  assert.match(watchRoute, /alternativeRewardsOnly/);
+  assert.match(watchRoute, /maxCompetitionLevel/);
+});

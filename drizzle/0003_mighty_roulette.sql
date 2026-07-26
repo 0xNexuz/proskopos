@@ -1,0 +1,21 @@
+ALTER TABLE `leads` ADD `topics` text DEFAULT '[]' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `technologies` text DEFAULT '[]' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `ecosystem` text DEFAULT 'Multi-chain' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `source_tier` text DEFAULT 'Major' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `reward_paths` text DEFAULT '[]' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `difficulty` text DEFAULT 'Intermediate' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `competition_level` text DEFAULT 'Unknown' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `competition_confidence` text DEFAULT 'unknown' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `visibility_level` text DEFAULT 'Unknown' NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `winner_count` integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `participation_rewards` integer DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `earning_score` integer DEFAULT 0 NOT NULL;--> statement-breakpoint
+ALTER TABLE `leads` ADD `earning_breakdown` text DEFAULT '{}' NOT NULL;--> statement-breakpoint
+ALTER TABLE `user_profiles` ADD `tools` text DEFAULT '[]' NOT NULL;--> statement-breakpoint
+ALTER TABLE `user_profiles` ADD `weekly_hours` integer DEFAULT 10 NOT NULL;--> statement-breakpoint
+ALTER TABLE `user_profiles` ADD `difficulty_preference` text DEFAULT 'Any' NOT NULL;--> statement-breakpoint
+ALTER TABLE `user_profiles` ADD `participation_mode` text DEFAULT 'Either' NOT NULL;--> statement-breakpoint
+ALTER TABLE `watchlists` ADD `low_visibility_only` integer DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE `watchlists` ADD `alternative_rewards_only` integer DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE `watchlists` ADD `max_competition_level` text DEFAULT 'Any' NOT NULL;--> statement-breakpoint
+ALTER TABLE `watchlists` ADD `deadline_days` integer DEFAULT 0 NOT NULL;

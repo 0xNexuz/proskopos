@@ -5,9 +5,10 @@ import { getCurrentUser, requireCurrentUser } from "../../current-user";
 import { checkRateLimit, jsonArray } from "../../data-service";
 import { googleClientId } from "../../google-session";
 
+const safeSlug = (value:string) => value.toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-+|-+$/g,"").slice(0,60);
 function serialize(row: typeof userProfiles.$inferSelect | undefined) {
   if (!row) return null;
-  return { ...row, goals:jsonArray(row.goals), stacks:jsonArray(row.stacks), chains:jsonArray(row.chains), specialties:jsonArray(row.specialties), auditReportUrls:jsonArray(row.auditReportUrls) };
+  return { ...row, goals:jsonArray(row.goals), stacks:jsonArray(row.stacks), chains:jsonArray(row.chains), specialties:jsonArray(row.specialties), tools:jsonArray(row.tools), auditReportUrls:jsonArray(row.auditReportUrls) };
 }
 
 export async function GET() {
@@ -29,9 +30,9 @@ export async function PUT(request: Request) {
     const timestamp = new Date().toISOString();
     const value = {
       userId:user.email, displayName:String(body.displayName || user.displayName).slice(0,80),
-      goals:JSON.stringify(arrays("goals")), stacks:JSON.stringify(arrays("stacks")), chains:JSON.stringify(arrays("chains")), specialties:JSON.stringify(arrays("specialties")),
+      goals:JSON.stringify(arrays("goals")), stacks:JSON.stringify(arrays("stacks")), chains:JSON.stringify(arrays("chains")), specialties:JSON.stringify(arrays("specialties")), tools:JSON.stringify(arrays("tools")),
       experienceLevel:String(body.experienceLevel || "Growing").slice(0,30), portfolioUrl:String(body.portfolioUrl || "").slice(0,300), minReward:Math.max(0, Number(body.minReward) || 0),
-      availability:String(body.availability || "Flexible").slice(0,60), region:String(body.region || "Global").slice(0,80), scopedOnly:body.scopedOnly !== false,
+      availability:String(body.availability || "Flexible").slice(0,60), weeklyHours:Math.min(80,Math.max(1,Number(body.weeklyHours)||10)), difficultyPreference:String(body.difficultyPreference || "Any").slice(0,30), participationMode:String(body.participationMode || "Either").slice(0,30), region:String(body.region || "Global").slice(0,80), scopedOnly:body.scopedOnly !== false,
       alertFrequency:String(body.alertFrequency || "Daily").slice(0,30), alertChannel:String(body.alertChannel || "In-app").slice(0,30), alertDestination:String(body.alertDestination || "").slice(0,160),
       passportHeadline:String(body.passportHeadline || "Independent Web3 security researcher").slice(0,100),
       passportBio:String(body.passportBio || "").slice(0,600), passportSlug:safeSlug(String(body.passportSlug || existing[0]?.passportSlug || user.displayName)) || `researcher-${crypto.randomUUID().slice(0,8)}`,

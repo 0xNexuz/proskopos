@@ -31,6 +31,8 @@ export async function POST(request:Request) {
       name:String(body.name || "My watch").trim().slice(0,80) || "My watch",
       stacks:JSON.stringify(values("stacks")), categories:JSON.stringify(values("categories")),
       minReward:Math.max(0,Number(body.minReward)||0), verifiedOnly:body.verifiedOnly===true,
+      lowVisibilityOnly:body.lowVisibilityOnly===true, alternativeRewardsOnly:body.alternativeRewardsOnly===true,
+      maxCompetitionLevel:String(body.maxCompetitionLevel || "Any").slice(0,20), deadlineDays:Math.min(365,Math.max(0,Number(body.deadlineDays)||0)),
       active:body.active!==false, createdAt:timestamp, updatedAt:timestamp,
     };
     await getDb().insert(watchlists).values(row).onConflictDoUpdate({target:watchlists.id,set:{...row,userId:user.email}});
