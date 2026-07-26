@@ -22,7 +22,8 @@ export function calculateFit(lead: QualifiableLead, profile: ProfileInput | null
   const specialty = textMatch(profile.specialties, haystack) ? 15 : 5;
   const tools = profile.tools.length === 0 ? 8 : textMatch(profile.tools, haystack) ? 15 : 4;
   const experience = profile.experienceLevel === "Expert" ? 15 : profile.experienceLevel === "Experienced" ? 12 : 9;
-  const engagement = textMatch(profile.goals, `${lead.category} ${lead.launchStage} ${lead.rewardPaths.join(" ")}`) ? 10 : 4;
+  const expandedGoals=profile.goals.flatMap((goal) => goal==="Hackathons" ? [goal,"Hackathon"] : goal==="Security jobs" ? [goal,"Job","Internship","Early Career"] : [goal]);
+  const engagement = textMatch(expandedGoals, `${lead.category} ${lead.launchStage} ${lead.rewardPaths.join(" ")}`) ? 10 : 4;
   const rewardValue = parseMoney(lead.reward);
   const budget = profile.minReward === 0 || rewardValue >= profile.minReward ? 10 : rewardValue === 0 ? 5 : 2;
   const hoursNeeded = lead.difficulty === "Advanced" ? 15 : lead.difficulty === "Beginner" ? 5 : 10;

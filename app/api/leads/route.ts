@@ -8,6 +8,9 @@ import { checkRateLimit, ensureFreshLeads, jsonArray, refreshLeads } from "../..
 const profileShape = (row: typeof userProfiles.$inferSelect | undefined) => row ? { ...row, goals:jsonArray(row.goals), stacks:jsonArray(row.stacks), chains:jsonArray(row.chains), specialties:jsonArray(row.specialties), tools:jsonArray(row.tools) } : null;
 const jsonObject = (value:string) => { try { return JSON.parse(value) as Record<string,number>; } catch { return {}; } };
 const leadShape = (row:typeof leads.$inferSelect) => ({ ...row, qualityScore:row.score, qualityBreakdown:jsonObject(row.scoreBreakdown), earningBreakdown:jsonObject(row.earningBreakdown), topics:jsonArray(row.topics), technologies:jsonArray(row.technologies), rewardPaths:jsonArray(row.rewardPaths) });
+const ownerCategories=new Set(["Hackathon","Job","Internship"]);
+const ownerSources=new Set(["ETHGlobal","Web3 Career"]);
+const isOwner=(email:string|undefined)=>Boolean(email && process.env.OWNER_EMAIL && email.toLowerCase()===process.env.OWNER_EMAIL.toLowerCase());
 
 export async function GET() {
   try {
@@ -22,11 +25,13 @@ export async function GET() {
     ]);
     const profile = profileShape(profileRows[0]);
     const stateMap = new Map(states.map((state) => [state.leadId, state]));
-    const result = rows.map((row) => {
+    const visibleRows=rows.filter((row)=>!ownerCategories.has(row.category)||isOwner(user?.email));
+    const visibleSourceState=sourceState.filter((state)=>!ownerSources.has(state.source)||isOwner(user?.email));
+    const result = visibleRows.map((row) => {
       const shaped = leadShape(row);
       return { ...shaped, ...calculateFit(shaped, profile), userState:stateMap.get(row.id) || { saved:false, hidden:false, pitchedAt:null, notes:"", nextActionAt:null } };
     });
-    return Response.json({ leads:result, profile, sources:sourceState, lastSynced:sourceState[0]?.lastSyncedAt || null, autoRefresh:"Traffic-triggered every 6 hours" });
+    return Response.json({ leads:result, profile, sources:visibleSourceState, lastSynced:visibleSourceState[0]?.lastSyncedAt || null, autoRefresh:"Traffic-triggered every 6 hours" });
   } catch (error) { return Response.json({ error:error instanceof Error ? error.message : "Unable to load opportunities" }, { status:500 }); }
 }
 
@@ -35,7 +40,8 @@ export async function POST() {
     const user = await requireCurrentUser();
     if (!await checkRateLimit(`sync:${user.email}`, 3, 15 * 60_000)) return Response.json({ error:"Sync limit reached. Automatic refresh will continue in the background." }, { status:429 });
     const results = await refreshLeads();
-    return Response.json({ added:results.reduce((sum, result) => sum + result.rows.length, 0), sources:results.map(({source,rows,error}) => ({ source, count:rows.length, error })), lastSynced:new Date().toISOString() });
+    const visibleResults=results.filter((result)=>!ownerSources.has(result.source)||isOwner(user.email));
+    return Response.json({ added:visibleResults.reduce((sum, result) => sum + result.rows.length, 0), sources:visibleResults.map(({source,rows,error}) => ({ source, count:rows.length, error })), lastSynced:new Date().toISOString() });
   } catch (error) {
     if (error instanceof Error && error.message === "AUTH_REQUIRED") return Response.json({ error:"Sign in is required." }, { status:401 });
     return Response.json({ error:error instanceof Error ? error.message : "Unable to sync" }, { status:500 });

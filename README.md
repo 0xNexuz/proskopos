@@ -12,7 +12,9 @@ Proskopos is an explainable Web3 security opportunity radar for independent audi
 - Alternative-reward discovery for multiple payouts, contributor rewards, and other non-winner-takes-all paths when supported by evidence
 - Private saved, hidden, pitched, notes, next-action, and optional outcome learning
 - Daily Signal watchlists with low-visibility, competition, evidence, reward-path, stack, and budget filters
-- Email previews and protected scheduled daily or weekly digests
+- In-app Daily Signal with saved watches and secure Telegram previews, daily digests, and disconnect controls
+- Optional email delivery for operators with a verified sender domain
+- A server-enforced owner-only Builder Feed for edge-scored hackathons, Web3 jobs, and internships
 - A distinctive, opt-in public Security Passport and scope workspace
 - Google authentication with server-side credential verification
 - Permission-first evidence labels and responsible-testing guidance
@@ -39,6 +41,10 @@ The local Vinext environment simulates the declared `DB` binding. Hosted runtime
 - `RESEND_API_KEY`: Resend API key used for email delivery
 - `EMAIL_FROM`: verified sender, for example `Proskopos <signals@example.com>`
 - `CRON_SECRET`: shared secret protecting scheduled digest runs
+- `TELEGRAM_BOT_TOKEN`: secret token created with Telegram's `@BotFather`
+- `TELEGRAM_BOT_USERNAME`: public bot username without the leading `@`
+- `TELEGRAM_WEBHOOK_SECRET`: long private value used to authenticate Telegram webhook requests
+- `OWNER_EMAIL`: the only signed-in account allowed to receive hackathon, job, and internship records
 
 Do not commit secrets or local environment files.
 
@@ -54,6 +60,21 @@ Do not commit secrets or local environment files.
 
 Keep `RESEND_API_KEY` and `CRON_SECRET` secret. Use a restricted Sending access key rather than Full access.
 
+### Telegram setup
+
+1. Open `@BotFather` in Telegram, run `/newbot`, and copy the bot token and username.
+2. Save the token as the secret `TELEGRAM_BOT_TOKEN` and the username as `TELEGRAM_BOT_USERNAME`.
+3. Generate a long random `TELEGRAM_WEBHOOK_SECRET` and save it as a secret.
+4. Register `https://proskopos-audit-radar.elllbest7.chatgpt.site/api/telegram/webhook` with Telegram's `setWebhook` method and pass the same value as `secret_token`.
+5. Redeploy, open **Daily Signal**, choose **Connect Telegram**, then start the bot from the one-time link.
+
+Scheduled Telegram delivery calls `GET /api/notifications/telegram` with `Authorization: Bearer <CRON_SECRET>`. Users must start the bot before Telegram permits it to message them. The in-app briefing works without Telegram or email credentials.
+
+### Owner-only Builder Feed
+
+`OWNER_EMAIL` gates the feature on the server, not only in the interface. ETHGlobal hackathons and Web3 Career job/internship records are stored globally but removed from API responses and Telegram alerts for every other account. The owner receives private **Hackathons**, **Jobs**, and **Internships** tabs with the same quality, personal-fit, and earning-potential explanations used by the security radar.
+
+Hackathon earning potential considers multiple prize paths, visibility, estimated competition, timing, and stack fit. Estimates remain labelled and official event pages remain the source of truth.
 ## Data model
 
 Global opportunity evidence is stored separately from private user profiles and lead state. Drizzle schema and migrations are in `db/` and `drizzle/`.

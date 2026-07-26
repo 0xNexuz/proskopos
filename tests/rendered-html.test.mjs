@@ -67,3 +67,28 @@ test("explains the Opportunity Edge and finds underrated public signals", async 
   assert.match(watchRoute, /alternativeRewardsOnly/);
   assert.match(watchRoute, /maxCompetitionLevel/);
 });
+test("keeps Telegram alerts private and owner opportunities server-gated", async () => {
+  const [app, telegramRoute, webhookRoute, telegramService, ownerCollectors, leadsRoute, schema] = await Promise.all([
+    source("app/proskopos-app.tsx"),
+    source("app/api/notifications/telegram/route.ts"),
+    source("app/api/telegram/webhook/route.ts"),
+    source("app/telegram-alerts.ts"),
+    source("app/owner-collectors.ts"),
+    source("app/api/leads/route.ts"),
+    source("db/schema.ts"),
+  ]);
+
+  assert.match(app, /Connect Telegram/);
+  assert.match(app, /Hackathons/);
+  assert.match(app, /Builder feed/);
+  assert.match(telegramRoute, /CRON_SECRET/);
+  assert.match(telegramRoute, /requireCurrentUser/);
+  assert.match(webhookRoute, /x-telegram-bot-api-secret-token/);
+  assert.match(telegramService, /OWNER_EMAIL/);
+  assert.match(ownerCollectors, /collectEthGlobal/);
+  assert.match(ownerCollectors, /collectWeb3Jobs/);
+  assert.match(leadsRoute, /ownerCategories/);
+  assert.match(leadsRoute, /OWNER_EMAIL/);
+  assert.match(schema, /telegramConnections/);
+  assert.match(schema, /telegramLinkTokens/);
+});

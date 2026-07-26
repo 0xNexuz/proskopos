@@ -132,3 +132,19 @@ export const feedback = sqliteTable("feedback", {
   message: text("message").notNull(),
   createdAt: text("created_at").notNull(),
 });
+
+export const telegramConnections = sqliteTable("telegram_connections", {
+  userId: text("user_id").primaryKey(),
+  chatId: text("chat_id").notNull(),
+  username: text("username").notNull().default(""),
+  active: integer("active", { mode: "boolean" }).notNull().default(true),
+  connectedAt: text("connected_at").notNull(),
+  updatedAt: text("updated_at").notNull(),
+});
+
+export const telegramLinkTokens = sqliteTable("telegram_link_tokens", {
+  token: text("token").primaryKey(),
+  userId: text("user_id").notNull(),
+  expiresAt: integer("expires_at").notNull(),
+  usedAt: text("used_at"),
+});

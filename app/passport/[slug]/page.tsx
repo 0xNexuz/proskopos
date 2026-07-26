@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import Link from "next/link";
 import { ensureRuntimeSchema, getDb } from "../../../db";
 import { userProfiles } from "../../../db/schema";
 import { jsonArray } from "../../data-service";
@@ -12,11 +13,11 @@ export default async function PassportPage({params}:{params:Promise<{slug:string
   const {slug}=await params;
   const rows=await getDb().select().from(userProfiles).where(and(eq(userProfiles.passportSlug,slug),eq(userProfiles.passportPublic,true))).limit(1);
   const profile=rows[0];
-  if(!profile)return <main className="passport-not-found"><Logo/><h1>This Security Passport is private.</h1><p>Ask its owner for an active public link.</p><a href="/">Return to Proskopos</a></main>;
+  if(!profile)return <main className="passport-not-found"><Logo/><h1>This Security Passport is private.</h1><p>Ask its owner for an active public link.</p><Link href="/">Return to Proskopos</Link></main>;
   const stacks=jsonArray(profile.stacks),chains=jsonArray(profile.chains),specialties=jsonArray(profile.specialties),reports=jsonArray(profile.auditReportUrls);
   const code=slug.split("").reduce((sum,character)=>sum+character.charCodeAt(0),0).toString(16).toUpperCase().padStart(6,"0").slice(-6);
   return <main className="passport-public">
-    <nav><Logo/><a href="/">Opportunity radar</a></nav>
+    <nav><Logo/><Link href="/">Opportunity radar</Link></nav>
     <section className="passport-intro"><p>PROSKOPOS SECURITY PASSPORT</p><h1>Proof of focus.<br/>Ready for the right scope.</h1><span>An opt-in professional identity for responsible Web3 security work.</span></section>
     <article className="security-passport-card">
       <div className="passport-orbit" aria-hidden="true"><i/><i/><i/></div>
