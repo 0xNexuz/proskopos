@@ -1,14 +1,18 @@
 # Proskopos
 
-Proskopos is an explainable Web3 security opportunity radar for independent auditors. It collects official bounty and audit-contest listings, finds early public protocol signals, scores opportunity quality, and calculates personal fit from each auditor's private profile.
+Proskopos is an explainable Web3 security opportunity radar for independent auditors. It combines major bounty and audit-contest coverage with early public protocol and micro-bounty signals, then ranks each opportunity by quality, personal fit, and realistic earning potential.
 
 ## What it includes
 
 - Official listing collectors for Immunefi, Code4rena, Sherlock, and Cantina
-- HackerOne directory monitoring and GitHub early-project discovery
-- Separate Opportunity Quality and Personal Fit scores
+- HackerOne directory monitoring, GitHub early-project discovery, and public GitHub security-issue signals
+- Three explainable scores: Opportunity Quality, Personal Fit, and Earning Potential (Opportunity Edge)
+- Structured opportunity tags for type, topic, ecosystem, technology, reward path, difficulty, visibility, and competition
+- Personalized matching from stacks, chains, specialties, tools, experience, weekly availability, difficulty preference, region, and solo/team preference
+- Alternative-reward discovery for multiple payouts, contributor rewards, and other non-winner-takes-all paths when supported by evidence
 - Private saved, hidden, pitched, notes, next-action, and optional outcome learning
-- Daily Signal watchlists with email previews and scheduled digests
+- Daily Signal watchlists with low-visibility, competition, evidence, reward-path, stack, and budget filters
+- Email previews and protected scheduled daily or weekly digests
 - A distinctive, opt-in public Security Passport and scope workspace
 - Google authentication with server-side credential verification
 - Permission-first evidence labels and responsible-testing guidance
@@ -37,6 +41,18 @@ The local Vinext environment simulates the declared `DB` binding. Hosted runtime
 - `CRON_SECRET`: shared secret protecting scheduled digest runs
 
 Do not commit secrets or local environment files.
+
+### Email setup
+
+1. Create a Resend account and verify a domain or sending subdomain.
+2. Create a Sending access API key and save it as `RESEND_API_KEY`.
+3. Set `EMAIL_FROM` to a sender on the verified domain, such as `Proskopos <signals@updates.example.com>`.
+4. Generate a long random value for `CRON_SECRET`; it is created by the operator, not supplied by Resend.
+5. Add all three values to the hosted production environment and redeploy the saved site version.
+
+`CRON_SECRET` protects `GET /api/notifications/email`, which is intended to be called by a scheduler using `Authorization: Bearer <CRON_SECRET>`. The in-app **Send email preview** action uses the signed-in user's session and does not require that header.
+
+Keep `RESEND_API_KEY` and `CRON_SECRET` secret. Use a restricted Sending access key rather than Full access.
 
 ## Data model
 
