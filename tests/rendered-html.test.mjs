@@ -86,9 +86,29 @@ test("keeps Telegram alerts private and owner opportunities server-gated", async
   assert.match(webhookRoute, /x-telegram-bot-api-secret-token/);
   assert.match(telegramService, /OWNER_EMAIL/);
   assert.match(ownerCollectors, /collectEthGlobal/);
+  assert.match(ownerCollectors, /collectDoraHacks/);
+  assert.match(ownerCollectors, /collectDevpost/);
+  assert.match(ownerCollectors, /collectTaikai/);
+  assert.match(ownerCollectors, /collectColosseum/);
   assert.match(ownerCollectors, /collectWeb3Jobs/);
+  assert.match(leadsRoute, /DoraHacks/);
+  assert.match(leadsRoute, /Colosseum/);
   assert.match(leadsRoute, /ownerCategories/);
   assert.match(leadsRoute, /OWNER_EMAIL/);
   assert.match(schema, /telegramConnections/);
   assert.match(schema, /telegramLinkTokens/);
+});
+
+test("aligns owner header actions and keeps private release notes out of the README", async () => {
+  const [app, styles, readme] = await Promise.all([source("app/proskopos-app.tsx"), source("app/globals.css"), source("README.md")]);
+  assert.match(app, /header-tool owner-feed-button/);
+  assert.match(styles, /reference-nav \.header-tool\{inline-size:118px;min-block-size:50px/);
+  assert.doesNotMatch(readme, /Builder Feed/i);
+});
+
+test("loads privacy-friendly Vercel visitor analytics", async () => {
+  const [layout, manifest] = await Promise.all([source("app/layout.tsx"), source("package.json")]);
+  assert.match(layout, /@vercel\/analytics\/next/);
+  assert.match(layout, /<Analytics \/>/);
+  assert.match(manifest, /@vercel\/analytics/);
 });

@@ -9,7 +9,7 @@ const profileShape = (row: typeof userProfiles.$inferSelect | undefined) => row 
 const jsonObject = (value:string) => { try { return JSON.parse(value) as Record<string,number>; } catch { return {}; } };
 const leadShape = (row:typeof leads.$inferSelect) => ({ ...row, qualityScore:row.score, qualityBreakdown:jsonObject(row.scoreBreakdown), earningBreakdown:jsonObject(row.earningBreakdown), topics:jsonArray(row.topics), technologies:jsonArray(row.technologies), rewardPaths:jsonArray(row.rewardPaths) });
 const ownerCategories=new Set(["Hackathon","Job","Internship"]);
-const ownerSources=new Set(["ETHGlobal","Web3 Career"]);
+const ownerSources=new Set(["ETHGlobal","DoraHacks","Devpost","TAIKAI","Colosseum","Web3 Career"]);
 const isOwner=(email:string|undefined)=>Boolean(email && process.env.OWNER_EMAIL && email.toLowerCase()===process.env.OWNER_EMAIL.toLowerCase());
 
 export async function GET() {

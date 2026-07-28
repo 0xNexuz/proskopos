@@ -1,5 +1,5 @@
 import type { leads } from "../db/schema";
-import { collectEthGlobal, collectWeb3Jobs } from "./owner-collectors";
+import { collectColosseum, collectDevpost, collectDoraHacks, collectEthGlobal, collectTaikai, collectWeb3Jobs } from "./owner-collectors";
 
 export type LeadRow = typeof leads.$inferInsert;
 type GithubRepo = { id:number; name:string; full_name:string; html_url:string; description:string|null; created_at:string; pushed_at:string; language:string|null; stargazers_count:number; homepage?:string|null; owner:{login:string} };
@@ -182,7 +182,7 @@ export async function collectGithubIssues(): Promise<LeadRow[]> {
 }
 
 export async function collectAll() {
-  const collectors = [{source:"Code4rena", run:collectCode4rena},{source:"Sherlock", run:collectSherlock},{source:"Cantina", run:collectCantina},{source:"Immunefi", run:collectImmunefi},{source:"GitHub", run:collectGithub},{source:"GitHub Issues", run:collectGithubIssues},{source:"ETHGlobal",run:collectEthGlobal},{source:"Web3 Career",run:collectWeb3Jobs}];
+  const collectors = [{source:"Code4rena", run:collectCode4rena},{source:"Sherlock", run:collectSherlock},{source:"Cantina", run:collectCantina},{source:"Immunefi", run:collectImmunefi},{source:"GitHub", run:collectGithub},{source:"GitHub Issues", run:collectGithubIssues},{source:"ETHGlobal",run:collectEthGlobal},{source:"DoraHacks",run:collectDoraHacks},{source:"Devpost",run:collectDevpost},{source:"TAIKAI",run:collectTaikai},{source:"Colosseum",run:collectColosseum},{source:"Web3 Career",run:collectWeb3Jobs}];
   const results = await Promise.all(collectors.map(async ({source,run}) => { try { return { source, rows:await run(), error:null }; } catch (error) { return { source, rows:[] as LeadRow[], error:error instanceof Error ? error.message : "Collector failed" }; } }));
   results.push({ source:"HackerOne", rows:[base({ id:"hackerone-directory", project:"HackerOne program directory", repo:"Official program directory", source:"HackerOne", sourceUrl:"https://hackerone.com/directory/programs", discoveredAt:"Current source", stack:"Web / API", category:"Bug bounty", reward:"Program dependent", fundingSignal:"Program-level bounty statistics", deadline:"Ongoing", launchStage:"Live program directory", existingAudits:"Program dependent", bountyProgram:"VDP and bounty programs", contact:"Defined program channel", fitReason:"A permissioned expansion path from smart contracts into wallets, APIs, and product surfaces.", suggestedScope:"Use active-program filters and read each policy before testing.", outreachDraft:"Confirm assets, exclusions, and safe-harbor terms before any testing.", score:70, scoreBreakdown:breakdown(25,14,10,6,15,10), summary:"HackerOne's official directory lists permissioned disclosure and bounty programs.", evidenceConfidence:"directory", evidenceNote:"Official directory verified. Program-level extraction is limited by the directory's client-side access controls.", rewardPaths:["Valid finding rewards","Multiple payouts"], difficulty:"Intermediate", competitionLevel:"Unknown", competitionConfidence:"unknown", visibilityLevel:"High", sourceTier:"Major" })], error:null });
   return results;
